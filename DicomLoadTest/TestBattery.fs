@@ -56,7 +56,7 @@ type ResponseMessage =
 module TestBattery =
     let private _pacsHost: string = "localhost"
     let private _pacsPort: int = 4242
-    let private _pacsAET: string = "MARKO-ORTHANC"
+    let private _pacsAET: string = "MARKO-ORTHANC" // Your PACS AET here
 
     let private createDicomClient (clientAET: string) (pacsConfig: PacsConfig) : IDicomClient =
         DicomClientFactory.Create(pacsConfig.Host, pacsConfig.Port, false, clientAET, pacsConfig.AETitle)
