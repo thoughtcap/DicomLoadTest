@@ -11,7 +11,7 @@ Change the number of requests and iterations using the `numberOfRequests` and `i
 
 ## Orthanc
 
-This test suite was imagined to work with one or more locally hosted Orthanc instances. The second test, "Single client -> Multiple PACS", is intended to start with Orthanc running on http://localhost:4242 and work its way up to the last Orthanc instance running on http://localhost:4242 + (numberOfRequests - 1).
+This test suite was imagined to work with one or more locally hosted Orthanc instances. The second test, "Single client -> Multiple PACS", is intended to start with Orthanc running on http://localhost:8042 and work its way up to the last Orthanc instance running on http://localhost:8042 + (numberOfRequests - 1).
 
 ### TODO:
 
