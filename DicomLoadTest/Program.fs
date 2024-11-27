@@ -11,21 +11,19 @@ let formatPatientNames (results: DicomRequestResult list) =
     |> List.distinct
     |> List.map (fun s -> s.Trim())
 
-type TestConfig = {
-    NumberOfRequests: int
-    Iterations: int
-}
+type TestConfig =
+    { NumberOfRequests: int
+      Iterations: int }
 
-let defaultConfig = {
-    NumberOfRequests = 50
-    Iterations = 50
-}
+let defaultConfig =
+    { NumberOfRequests = 50
+      Iterations = 50 }
 
 /// <summary>
 /// Parse the results of the DICOM requests and calculate the average round trip time.
 /// </summary>
 /// <param name="results">The results of the DICOM requests.</param>
-/// <returns>A tuple containing the number of successful and failed requests, and the average round trip time.</returns>
+///
 let parseDicomResults (results: DicomRequestResult list) =
     let successful, failed =
         results
@@ -41,7 +39,7 @@ let parseDicomResults (results: DicomRequestResult list) =
 
     (successful, failed), averageRoundTrip
 
-let printUsage() =
+let printUsage () =
     printfn "Usage: DicomLoadTest [options]"
     printfn "Options:"
     printfn "  --help                     Show this help message"
@@ -49,15 +47,18 @@ let printUsage() =
     printfn "  --iterations <n>           Number of iterations to run (default: 10)"
 
 let parseCommandLineArgs (args: string[]) : Option<TestConfig> =
-    let rec parseArgs config = function
+    let rec parseArgs config =
+        function
         | "--help" :: _ ->
-            printUsage()
+            printUsage ()
             None
         | "--number-of-requests" :: value :: rest ->
             match Int32.TryParse value with
             | true, num -> parseArgs { config with NumberOfRequests = num } rest
             | false, _ ->
-                printfn "\u001b[33mWarning: Invalid value for --number-of-requests, using default value of 50\u001b[0m\n"
+                printfn
+                    "\u001b[33mWarning: Invalid value for --number-of-requests, using default value of 50\u001b[0m\n"
+
                 parseArgs config rest
         | "--iterations" :: value :: rest ->
             match Int32.TryParse value with
@@ -67,15 +68,13 @@ let parseCommandLineArgs (args: string[]) : Option<TestConfig> =
                 parseArgs config rest
         | [] -> Some config
         | _ :: rest -> parseArgs config rest
-    
-    args 
-    |> Array.toList 
-    |> parseArgs defaultConfig
+
+    args |> Array.toList |> parseArgs defaultConfig
 
 [<EntryPoint>]
 let main argv =
     match parseCommandLineArgs argv with
-    | None -> 0  // Exit successfully after showing help
+    | None -> 0 // Exit successfully after showing help
     | Some config ->
         async {
             let results = ResizeArray<TestIterationResult>()
@@ -83,7 +82,7 @@ let main argv =
             printfn $"Starting DICOM Load Test with %d{config.Iterations} iterations"
             printfn $"Each iteration will perform %d{config.NumberOfRequests} requests per test"
 
-            for i in 1..config.Iterations do
+            for i in 1 .. config.Iterations do
                 printfn $"\nIteration %d{i} of %d{config.Iterations}"
                 printfn "=============================="
 
