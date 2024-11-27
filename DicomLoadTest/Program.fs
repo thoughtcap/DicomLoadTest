@@ -21,6 +21,26 @@ let defaultConfig = {
     Iterations = 50
 }
 
+/// <summary>
+/// Parse the results of the DICOM requests and calculate the average round trip time.
+/// </summary>
+/// <param name="results">The results of the DICOM requests.</param>
+/// <returns>A tuple containing the number of successful and failed requests, and the average round trip time.</returns>
+let parseDicomResults (results: DicomRequestResult list) =
+    let successful, failed =
+        results
+        |> List.partition (fun r ->
+            match r.Status with
+            | Ok _ -> true
+            | Error _ -> false)
+
+    let averageRoundTrip =
+        match successful.Length with
+        | n when n > 0 -> successful |> List.averageBy (fun r -> r.RoundTripSeconds)
+        | _ -> 0.0
+
+    (successful, failed), averageRoundTrip
+
 let printUsage() =
     printfn "Usage: DicomLoadTest [options]"
     printfn "Options:"
@@ -73,18 +93,7 @@ let main argv =
                 let! singlePACSResults = TestMultiClientsSinglePACS config.NumberOfRequests
                 let endTime = DateTime.Now
 
-                let successful, failed =
-                    singlePACSResults
-                    |> List.partition (fun r ->
-                        match r.Status with
-                        | Ok _ -> true
-                        | Error _ -> false)
-
-                let averageRoundTrip =
-                    if successful.Length > 0 then
-                        successful |> List.averageBy (fun r -> r.RoundTripSeconds)
-                    else
-                        0.0
+                let (successful, failed), averageRoundTrip = parseDicomResults singlePACSResults
 
                 results.Add(
                     { IterationNumber = i
@@ -106,18 +115,7 @@ let main argv =
             // let! multiPACSResults = TestMultiClientsSinglePACS config.NumberOfRequests
             // let endTime = DateTime.Now
 
-            // let successful, failed =
-            //     multiPACSResults
-            //     |> List.partition (fun r ->
-            //         match r.Status with
-            //         | Ok _ -> true
-            //         | Error _ -> false)
-
-            // let averageRoundTrip =
-            //     if successful.Length > 0 then
-            //         successful |> List.averageBy (fun r -> r.RoundTripSeconds)
-            //     else
-            //         0.0
+            // let (successful, failed), averageRoundTrip = parseDicomResults multiPACSResults
 
             // results.Add(
             //     { IterationNumber = i
