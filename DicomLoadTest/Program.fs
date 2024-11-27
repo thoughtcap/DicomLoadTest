@@ -17,7 +17,7 @@ type TestConfig = {
 }
 
 let defaultConfig = {
-    NumberOfRequests = 10
+    NumberOfRequests = 50
     Iterations = 50
 }
 
@@ -25,8 +25,8 @@ let printUsage() =
     printfn "Usage: DicomLoadTest [options]"
     printfn "Options:"
     printfn "  --help                     Show this help message"
-    printfn "  --number-of-requests <n>   Number of requests to perform (default: 10)"
-    printfn "  --iterations <n>           Number of iterations to run (default: 50)"
+    printfn "  --number-of-requests <n>   Number of requests to perform (default: 50)"
+    printfn "  --iterations <n>           Number of iterations to run (default: 10)"
 
 let parseCommandLineArgs (args: string[]) : Option<TestConfig> =
     let rec parseArgs config = function
@@ -37,13 +37,13 @@ let parseCommandLineArgs (args: string[]) : Option<TestConfig> =
             match Int32.TryParse value with
             | true, num -> parseArgs { config with NumberOfRequests = num } rest
             | false, _ ->
-                printfn "\u001b[33mWarning: Invalid value for --number-of-requests, using default value of 10\u001b[0m\n"
+                printfn "\u001b[33mWarning: Invalid value for --number-of-requests, using default value of 50\u001b[0m\n"
                 parseArgs config rest
         | "--iterations" :: value :: rest ->
             match Int32.TryParse value with
             | true, num -> parseArgs { config with Iterations = num } rest
             | false, _ ->
-                printfn "\u001b[33mWarning: Invalid value for --iterations, using default value of 50\u001b[0m\n"
+                printfn "\u001b[33mWarning: Invalid value for --iterations, using default value of 10\u001b[0m\n"
                 parseArgs config rest
         | [] -> Some config
         | _ :: rest -> parseArgs config rest
