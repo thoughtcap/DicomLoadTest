@@ -15,5 +15,5 @@ This test suite was imagined to work with one or more locally hosted Orthanc ins
 
 ### TODO:
 
-- [ ] Make the number of requests and iterations configurable from the command line.
+- [x] Make the number of requests and iterations configurable from the command line.
 - [ ] Make second test configurable (local vs docker etc.)
