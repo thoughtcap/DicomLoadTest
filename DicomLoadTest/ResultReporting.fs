@@ -5,6 +5,11 @@ open System.IO
 open YamlDotNet.Serialization
 open YamlDotNet.Serialization.NamingConventions
 
+type RequestTiming =
+    { StartTime: DateTime
+      EndTime: DateTime
+      IsSuccessful: bool }
+
 type TestIterationResult =
     { IterationNumber: int
       Timestamp: DateTime
@@ -13,7 +18,8 @@ type TestIterationResult =
       FailedRequests: int
       AverageRoundTripSeconds: float
       TotalDurationInSeconds: float
-      PatientNames: string list }
+      PatientNames: string list
+      RequestTimings: RequestTiming list }
 
 module ResultReporting =
     let SaveResults (results: TestIterationResult list) (filePath: string) =
@@ -23,7 +29,7 @@ module ResultReporting =
 
         let serializer =
             SerializerBuilder()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .WithNamingConvention(UnderscoredNamingConvention.Instance)
                 .Build()
 
         let yamlContent = serializer.Serialize(results)

@@ -17,7 +17,7 @@ type TestConfig =
 
 let defaultConfig =
     { NumberOfRequests = 50
-      Iterations = 50 }
+      Iterations = 10 }
 
 /// <summary>
 /// Parse the results of the DICOM requests and calculate the average round trip time.
@@ -37,7 +37,17 @@ let parseDicomResults (results: DicomRequestResult list) =
         | n when n > 0 -> successful |> List.averageBy (fun r -> r.RoundTripSeconds)
         | _ -> 0.0
 
-    (successful, failed), averageRoundTrip
+    let requestTimings =
+        results
+        |> List.map (fun r ->
+            { StartTime = r.StartTime
+              EndTime = r.EndTime
+              IsSuccessful =
+                match r.Status with
+                | Ok _ -> true
+                | Error _ -> false })
+
+    (successful, failed, requestTimings), averageRoundTrip
 
 let printUsage () =
     printfn "Usage: DicomLoadTest [options]"
@@ -92,7 +102,8 @@ let main argv =
                 let! singlePACSResults = TestMultiClientsSinglePACS config.NumberOfRequests
                 let endTime = DateTime.Now
 
-                let (successful, failed), averageRoundTrip = parseDicomResults singlePACSResults
+                let (successful, failed, requestTimings), averageRoundTrip =
+                    parseDicomResults singlePACSResults
 
                 results.Add(
                     { IterationNumber = i
@@ -102,33 +113,37 @@ let main argv =
                       FailedRequests = failed.Length
                       AverageRoundTripSeconds = averageRoundTrip
                       TotalDurationInSeconds = endTime.Subtract(startTime).TotalSeconds
-                      PatientNames = formatPatientNames successful }
+                      PatientNames = formatPatientNames successful
+                      RequestTimings = requestTimings }
                 )
 
                 printfn
                     $"Successful: %d{successful.Length}, Failed: %d{failed.Length}, Avg Round Trip: %.2f{averageRoundTrip}s, Total Duration: %.2f{endTime.Subtract(startTime).TotalSeconds}s"
 
-            // Test 2: Single client -> Multiple PACS
-            // printfn "\nTest 2: Single client -> Multiple PACS"
-            // let startTime = DateTime.Now
-            // let! multiPACSResults = TestMultiClientsSinglePACS config.NumberOfRequests
-            // let endTime = DateTime.Now
+                // Test 2: Single client -> Multiple PACS
 
-            // let (successful, failed), averageRoundTrip = parseDicomResults multiPACSResults
+                printfn "\nTest 2: Single client -> Multiple PACS"
+                let startTime = DateTime.Now
+                let! multiPACSResults = TestMultiClientsSinglePACS config.NumberOfRequests
+                let endTime = DateTime.Now
 
-            // results.Add(
-            //     { IterationNumber = i
-            //       Timestamp = DateTime.Now
-            //       TestType = "Single Client -> Multiple PACS"
-            //       SuccessfulRequests = successful.Length
-            //       FailedRequests = failed.Length
-            //       AverageRoundTripSeconds = averageRoundTrip
-            //       TotalDurationMs = endTime.Subtract(startTime).TotalMilliseconds
-            //       PatientNames = formatPatientNames successful }
-            // )
+                let (successful, failed, requestTimings), averageRoundTrip =
+                    parseDicomResults multiPACSResults
 
-            // printfn
-            //     $"Successful: %d{successful.Length}, Failed: %d{failed.Length}, Avg Round Trip: %.2f{averageRoundTrip}s"
+                results.Add(
+                    { IterationNumber = i
+                      Timestamp = DateTime.Now
+                      TestType = "Multiple Clients -> Multiple PACS"
+                      SuccessfulRequests = successful.Length
+                      FailedRequests = failed.Length
+                      AverageRoundTripSeconds = averageRoundTrip
+                      TotalDurationInSeconds = endTime.Subtract(startTime).TotalSeconds
+                      PatientNames = formatPatientNames successful
+                      RequestTimings = requestTimings }
+                )
+
+                printfn
+                    $"Successful: %d{successful.Length}, Failed: %d{failed.Length}, Avg Round Trip: %.2f{averageRoundTrip}s"
 
             // Save results to file
             let resultsDir = "test_results"
@@ -136,8 +151,6 @@ let main argv =
             let resultFile = SaveResults (results |> Seq.toList) resultsDir
 
             printfn "\nAll tests completed. Results saved to: %s" resultFile
-            printfn "\nPress any key to exit."
-            System.Console.ReadKey() |> ignore
         }
         |> Async.RunSynchronously
 
