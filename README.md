@@ -5,7 +5,7 @@ It tests the performance of both multiple clients sending multiple requests to m
 
 ## Running the Tests
 
-You can run the tests using `dotnet run`. By default, this will execute 10 requests over 50 iterations. 
+You can run the tests using `dotnet run`. By default, this will execute 50 requests over 10 iterations. 
 
 To configure the number of requests and iterations, use the following syntax:
 ```
