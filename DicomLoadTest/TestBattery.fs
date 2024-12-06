@@ -112,7 +112,7 @@ module TestBattery =
                         do! client.SendAsync() |> Async.AwaitTask
                         return Ok()
                     with ex ->
-                        printfn $"\nError in request %s{requestId}:%i{client.Port}: %s{ex.Message}\n"
+                        Printer.error $"\nError in request %s{requestId}:%i{client.Port}: %s{ex.Message}\n"
                         return Error ex
                 }
 
@@ -166,7 +166,7 @@ module TestBattery =
                 printfn $"Average time per request: %f{totalTime / float requestCount}ms"
                 return ResultAggregator.getResults aggregator
             with ex ->
-                printfn $"An exception occurred in test_multiple_requests_single_connection: %s{ex.Message}"
+                Printer.error $"An exception occurred in test_multiple_requests_single_connection: %s{ex.Message}"
                 return []
         }
 
@@ -201,6 +201,6 @@ module TestBattery =
                 return ResultAggregator.getResults aggregator
 
             with ex ->
-                printfn $"An exception occurred in test_multiple_pacs_connections: %s{ex.Message}"
+                Printer.error $"An exception occurred in test_multiple_pacs_connections: %s{ex.Message}"
                 return []
         }

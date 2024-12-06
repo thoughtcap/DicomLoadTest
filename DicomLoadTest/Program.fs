@@ -66,15 +66,13 @@ let parseCommandLineArgs (args: string[]) : Option<TestConfig> =
             match Int32.TryParse value with
             | true, num -> parseArgs { config with NumberOfRequests = num } rest
             | false, _ ->
-                printfn
-                    "\u001b[33mWarning: Invalid value for --number-of-requests, using default value of 50\u001b[0m\n"
-
+                Printer.warning $"Invalid value for --number-of-requests, using default value of 50"
                 parseArgs config rest
         | "--iterations" :: value :: rest ->
             match Int32.TryParse value with
             | true, num -> parseArgs { config with Iterations = num } rest
             | false, _ ->
-                printfn "\u001b[33mWarning: Invalid value for --iterations, using default value of 10\u001b[0m\n"
+                Printer.warning $"Invalid value for --iterations, using default value of 10"
                 parseArgs config rest
         | [] -> Some config
         | _ :: rest -> parseArgs config rest
