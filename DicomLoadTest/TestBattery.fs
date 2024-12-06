@@ -175,7 +175,7 @@ module TestBattery =
     /// </summary>
     /// <param name="requestCount">Number of parallel requests to send.</param>
     /// <returns>Aggregated results from all requests.</returns>
-    let TestMultiplePACSConnections (requestCount: int) : Async<DicomRequestResult list> =
+    let TestMultiClientMultiPACS (requestCount: int) : Async<DicomRequestResult list> =
         async {
             try
                 let aggregator = ResultAggregator.create ()

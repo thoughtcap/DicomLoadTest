@@ -94,7 +94,6 @@ let main argv =
                 printfn $"\nIteration %d{i} of %d{config.Iterations}"
                 printfn "=============================="
 
-                // Test 1: Multiple clients -> Single PACS
                 printfn "\nTest 1: Multiple clients -> Single PACS"
                 let startTime = DateTime.Now
                 let! singlePACSResults = TestMultiClientsSinglePACS config.NumberOfRequests
@@ -118,11 +117,9 @@ let main argv =
                 printfn
                     $"Successful: %d{successful.Length}, Failed: %d{failed.Length}, Avg Round Trip: %.2f{averageRoundTrip}s, Total Duration: %.2f{endTime.Subtract(startTime).TotalSeconds}s"
 
-                // Test 2: Single client -> Multiple PACS
-
-                printfn "\nTest 2: Single client -> Multiple PACS"
+                printfn "\nTest 2: Multiple clients -> Multiple PACS"
                 let startTime = DateTime.Now
-                let! multiPACSResults = TestMultiClientsSinglePACS config.NumberOfRequests
+                let! multiPACSResults = TestMultiClientMultiPACS config.NumberOfRequests
                 let endTime = DateTime.Now
 
                 let (successful, failed, requestTimings), averageRoundTrip =
